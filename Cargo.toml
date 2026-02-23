@@ -1,0 +1,7 @@
+[package]
+name = "IACP-Experimental"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+iacp_core = { git = "https://github.com/iacp-protocol/Core.git", tag = "core-v0.1" }
