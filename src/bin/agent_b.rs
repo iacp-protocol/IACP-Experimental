@@ -12,20 +12,24 @@ fn handle_client(mut stream: TcpStream) {
 
     // Harness-only encoding (non-normative)
     // Expected format: structure_version=0.1
-    let value = received.trim().strip_prefix("structure_version=").unwrap_or("");
+    let mut fields: Vec<Field> = Vec::new();
 
-    let msg = MessageInput {
-        fields: vec![
-            Field {
-                name: "structure_version".to_string(),
-                value: OpaqueValue::String(value.to_string()),
-            }
-        ],
-    };
+    if let Some(value) = received.trim().strip_prefix("structure_version=") {
+        fields.push(Field {
+            name: "structure_version".to_string(),
+            value: OpaqueValue::String(value.to_string()),
+        });
+    }
 
-    let _ = validate(msg);
+    let msg = MessageInput { fields };
 
-    stream.write_all(b"OK").unwrap();
+    let r = validate(msg);
+
+    if r.is_ok() {
+        stream.write_all(b"OK").unwrap();
+    } else {
+        stream.write_all(b"ERR").unwrap();
+    }
 }
 
 fn main() {
