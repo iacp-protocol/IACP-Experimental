@@ -1,0 +1,5 @@
+[build]
+rustflags = []
+
+[test]
+threads = 1
