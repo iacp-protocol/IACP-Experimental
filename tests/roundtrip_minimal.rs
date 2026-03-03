@@ -78,3 +78,16 @@ fn roundtrip_duplicate_structure_version_observed_behavior() {
     let _ = server.kill();
     let _ = server.wait();
 }
+#[test]
+fn roundtrip_missing_structure_version_yields_err() {
+    let port = pick_free_port();
+    let mut server = start_agent_b(port);
+
+    thread::sleep(Duration::from_millis(500));
+
+    let response = connect_and_send(port, b"x=1");
+    assert_eq!(response.trim(), "ERR");
+
+    let _ = server.kill();
+    let _ = server.wait();
+}

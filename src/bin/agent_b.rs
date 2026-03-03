@@ -22,9 +22,12 @@ fn handle_client(mut stream: TcpStream) {
         }],
     };
 
-    let _ = validate(msg);
-
-    stream.write_all(b"OK").unwrap();
+    let r = validate(msg);
+    if r.is_ok() {
+        stream.write_all(b"OK").unwrap();
+    } else {
+        stream.write_all(b"ERR").unwrap();
+    }
 }
 
 fn main() {
