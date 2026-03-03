@@ -11,16 +11,19 @@ fn handle_client(mut stream: TcpStream) {
 
     let received = String::from_utf8_lossy(&buffer[..size]).to_string();
 
-    // Harness-only encoding (non-normative)
-    // Expected format: structure_version=0.1
-    let value = received.trim().strip_prefix("structure_version=").unwrap_or("");
+   // Harness-only encoding (non-normative)
+// Expected format: structure_version=0.1
 
-    let msg = MessageInput {
-        fields: vec![Field {
-            name: "structure_version".to_string(),
-            value: OpaqueValue::String(value.to_string()),
-        }],
-    };
+let mut fields: Vec<Field> = Vec::new();
+
+if let Some(value) = received.trim().strip_prefix("structure_version=") {
+    fields.push(Field {
+        name: "structure_version".to_string(),
+        value: OpaqueValue::String(value.to_string()),
+    });
+}
+
+let msg = MessageInput { fields };
 
     let r = validate(msg);
     if r.is_ok() {
