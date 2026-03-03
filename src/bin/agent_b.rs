@@ -1,8 +1,9 @@
-use std::net::{TcpListener, TcpStream};
+use std::env;
 use std::io::{Read, Write};
+use std::net::{TcpListener, TcpStream};
 use std::thread;
 
-use iacp_core::{Field, MessageInput, OpaqueValue, validate};
+use iacp_core::{validate, Field, MessageInput, OpaqueValue};
 
 fn handle_client(mut stream: TcpStream) {
     let mut buffer = [0u8; 1024];
@@ -15,12 +16,10 @@ fn handle_client(mut stream: TcpStream) {
     let value = received.trim().strip_prefix("structure_version=").unwrap_or("");
 
     let msg = MessageInput {
-        fields: vec![
-            Field {
-                name: "structure_version".to_string(),
-                value: OpaqueValue::String(value.to_string()),
-            }
-        ],
+        fields: vec![Field {
+            name: "structure_version".to_string(),
+            value: OpaqueValue::String(value.to_string()),
+        }],
     };
 
     let _ = validate(msg);
@@ -29,7 +28,11 @@ fn handle_client(mut stream: TcpStream) {
 }
 
 fn main() {
-    let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+    // Harness-only config (non-normative)
+    let port = env::var("IACP_EXP_PORT").unwrap_or_else(|_| "7878".to_string());
+    let addr = format!("127.0.0.1:{port}");
+
+    let listener = TcpListener::bind(&addr).unwrap();
 
     for stream in listener.incoming() {
         let stream = stream.unwrap();
